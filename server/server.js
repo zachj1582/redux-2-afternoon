@@ -14,8 +14,19 @@ app.use(session({
   saveUninitialized: false
 }))
 
+// ==== REMOVE!!!! ====
+const userData = require('./userData')
+app.use((req, res, next) => {
+  req.session.user = userData;
+  next();
+})
+// =====================
+
 app.post('/auth/login', user.login)
 app.get('/auth/logout', user.logout)
+app.get('/auth/user-data', user.userData)
+
+app.get('/api/budget-data', budget.budgetData)
 
 app.listen(SERVER_PORT, () => {
   console.log(`Server running on port ${SERVER_PORT}`)

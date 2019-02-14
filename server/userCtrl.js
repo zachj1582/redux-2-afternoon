@@ -1,16 +1,22 @@
 const creds = require('./credentials');
-const { userData } = require('./data');
+const userData = require('./userData');
 module.exports = {
   login(req, res) {
-    const { username, password } = req.body;
-    if (username === creds.username && password === creds.password) {
-      res.status(200).send({ loggedIn: true, userData })
+    const { email, password } = req.body;
+    if (email === creds.email && password === creds.password) {
+      req.session.user = userData;
+      res.status(200).send({ loggedIn: true })
     } else {
-      res.status(401).send({ loggedIn: false, userData: null })
+      res.status(401).send({ loggedIn: false })
     }
   },
   logout(req, res) {
     req.session.destroy();
-    res.status(200).send({ loggedIn: false, userData: null })
+    res.status(200).send({ loggedIn: false })
+  },
+  userData(req, res) {
+    const { user } = req.session;
+    if (user) return res.status(200).send({ loggedIn: true, user });
+    else return res.sendStatus(401)
   }
 }
