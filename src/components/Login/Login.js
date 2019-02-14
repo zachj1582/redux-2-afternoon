@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Background from './../Background/Background'
+import Background from './../shared/Background/Background'
 import logo from './wallet.png';
 import axios from 'axios';
 import './Login.css';

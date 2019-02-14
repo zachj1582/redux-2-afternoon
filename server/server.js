@@ -27,6 +27,8 @@ app.get('/auth/logout', user.logout)
 app.get('/auth/user-data', user.userData)
 
 app.get('/api/budget-data', budget.budgetData)
+app.post('/api/budget-data/purchase', budget.purchase);
+app.delete('/api/budget-data/purchase/:id', budget.remove)
 
 app.listen(SERVER_PORT, () => {
   console.log(`Server running on port ${SERVER_PORT}`)
