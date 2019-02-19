@@ -6,7 +6,7 @@ class AddPurchase extends Component {
     super(props);
     this.state = {
       category: 'other',
-      business: '',
+      description: '',
       price: ''
     }
   }
@@ -16,15 +16,18 @@ class AddPurchase extends Component {
   }
 
   add() {
-    let { price, category, business } = this.state;
+    let { price, category, description } = this.state;
     let { addPurchase } = this.props;
+    if (!addPurchase) addPurchase = () => alert("Missing prop: addPurchase (AddPurchase.js)")
     let num = parseInt(price);
+    if (num < 0) return alert('Cannot have price less than zero.')
     if (!Number.isNaN(num) && typeof num === 'number') {
-      if (num && category && business) {
+      if (num && category && description) {
         if (!addPurchase) return this.backup();
+        addPurchase(num, description, category);
         this.setState({
           category: 'other',
-          business: '',
+          description: '',
           price: ''
         })
       } else alert('missing some info')
@@ -32,17 +35,17 @@ class AddPurchase extends Component {
   }
 
   render() {
-    const { price, category, business } = this.state;
+    const { price, category, description } = this.state;
     return (
       <div className='add-purchase'>
         <div className="form-group">
-          <label>Where did you buy?</label>
+          <label>Description</label>
           <input
-            value={business}
-            onChange={(e) => this.setState({ business: e.target.value })}
+            value={description}
+            onChange={(e) => this.setState({ description: e.target.value })}
             type="text"
             className="form-control"
-            placeholder="Name of business/location/place" />
+            placeholder="Description of purchase" />
           <label className='mt-3'>Category</label>
           <select
             value={category}
@@ -59,6 +62,7 @@ class AddPurchase extends Component {
                 <span className="input-group-text">$</span>
               </div>
               <input
+                min={1}
                 value={price}
                 type="number"
                 className="form-control col-2"

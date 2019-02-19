@@ -12,7 +12,7 @@ module.exports = {
   },
   logout(req, res) {
     req.session.destroy();
-    res.status(200).send({ loggedIn: false })
+    res.redirect('http://localhost:3000')
   },
   userData(req, res) {
     const { user } = req.session;

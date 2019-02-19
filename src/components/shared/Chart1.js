@@ -4,8 +4,8 @@ import { Doughnut } from 'react-chartjs-2';
 
 class Chart1 extends Component {
   render() {
-    console.log(this.props)
-    const { purchases, budgetLimit } = this.props;
+    let { purchases, budgetLimit } = this.props;
+    purchases = purchases || [];
     const moneySpent = purchases.reduce((total, purchase) => {
       return total + purchase.price
     }, 0)

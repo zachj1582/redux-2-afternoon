@@ -4,8 +4,8 @@ import { Pie } from 'react-chartjs-2';
 
 class Chart2 extends Component {
   render() {
-    console.log('render chart 2', this.props)
-    const { purchases } = this.props;
+    let { purchases } = this.props;
+    purchases = purchases || [];
     const labels = purchases
       .map(purchase => purchase.category)
       .filter((purchase, i, arr) => i === arr.indexOf(purchase))

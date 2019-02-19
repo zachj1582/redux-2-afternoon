@@ -2,26 +2,26 @@ module.exports = {
   purchases: [
     {
       id: 1,
-      business: 'Shake Shack',
-      price: 5,
+      description: 'Shake Shack',
+      price: 10,
       category: 'food'
     },
     {
       id: 2,
-      business: 'World Gas',
+      description: 'World Gas',
       price: 40,
       category: 'gas'
     },
     {
       id: 3,
-      business: 'Terry\'s T-Shirts',
+      description: 'Terry\'s T-Shirts',
       price: 25,
       category: 'other'
     },
     {
       id: 4,
-      business: 'Crescent Village Apartments',
-      price: 600,
+      description: 'Crescent Village Apartments',
+      price: 500,
       category: 'rent'
     }
   ],

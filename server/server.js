@@ -15,16 +15,21 @@ app.use(session({
 }))
 
 // ==== REMOVE!!!! ====
-const userData = require('./userData')
-app.use((req, res, next) => {
-  req.session.user = userData;
-  next();
-})
+// const userData = require('./userData')
+// app.use((req, res, next) => {
+//   req.session.user = userData;
+//   next();
+// })
 // =====================
 
-app.post('/auth/login', user.login)
-app.get('/auth/logout', user.logout)
 app.get('/auth/user-data', user.userData)
+app.get('/auth/logout', user.logout)
+app.post('/auth/login', user.login)
+
+app.use((req, res, next) => {
+  if (req.session.user) return next();
+  else res.sendStatus(401);
+})
 
 app.get('/api/budget-data', budget.budgetData)
 app.post('/api/budget-data/purchase', budget.purchase);

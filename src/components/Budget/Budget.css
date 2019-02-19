@@ -22,7 +22,7 @@
   font-size: 20px;
 }
 
-.user-info > span {
+.user-info > span:nth-child(1) {
   margin: 0px 16px;
   color: gray;
   font-weight: bolder;
@@ -92,4 +92,8 @@
   display: flex;
   justify-content: center;
   margin-top: 52px;
+}
+
+.user-info > span:nth-child(2) {
+  cursor: pointer;
 }
