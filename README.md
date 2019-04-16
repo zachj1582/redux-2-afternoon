@@ -754,6 +754,8 @@ export default connect(mapStateToProps, { requestUserData, requestBudgetData, ad
 
 </details>
 
+<details>
+
 <summary> <code> Combine Reducers </code> </summary>
 
 * [Combine Reducers](https://redux.js.org/api/combinereducers)
