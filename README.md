@@ -733,8 +733,32 @@ export default connect(mapStateToProps, { requestUserData, requestBudgetData, ad
 </details>
 
 
+## Resources
 
+<details>
 
+<summary> <code> React with Redux </code> </summary>
+
+* [React Redux Docs](https://react-redux.js.org/introduction/quick-start)
+* [Redux - Usage With React](https://redux.js.org/basics/usage-with-react)
+
+</details>
+
+<details>
+
+<summary> <code> Redux Middleware </code> </summary>
+
+* [Understanding Redux Middlewares](https://redux.js.org/advanced/middleware)
+* [Apply Middleware](https://redux.js.org/api/applymiddleware)
+* [Redux Promise Middleware](https://github.com/pburtchaell/redux-promise-middleware/blob/master/docs/introduction.md)
+
+</details>
+
+<summary> <code> Combine Reducers </code> </summary>
+
+* [Combine Reducers](https://redux.js.org/api/combinereducers)
+
+</details>
 
 ## Contributions
 
