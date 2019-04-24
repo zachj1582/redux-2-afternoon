@@ -14,6 +14,7 @@ In this step, we'll get the project set up.
 
 * Fork and clone this repo.
 * Run `npm install`. If you look at the package.json file, you'll notice that `redux`, `react-redux`, and `redux-promise-middleware` are listed as dependecies and will get installed.
+* Create a `.env` file in the root of the project with a `SERVER_PORT` of `4000` and a `SESSION_SECRET` of any value you want.
 * Run `nodemon`.
 * Run `npm start` in a separate terminal instance.
 
@@ -434,8 +435,8 @@ In budgetReducer.js:
 
 * Create action type called `REQUEST_BUDGET_DATA`
 * Create an action creator named `requestBudgetData` that will make an http request for budget data.
-  * Method: GET
-  * URL: '/api/budet-data
+  * Method: `GET`
+  * URL: `/api/budget-data`
   * Return action object from `requestBudgetData` with `type` and `payload` properties.
 * Update the switch statement
   * When http request is pending, `loading` should be true
