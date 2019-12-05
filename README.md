@@ -55,7 +55,7 @@ Now we'll create the store.
 * import `createStore`, `combineReducers` and `applyMiddleware` from redux
 * import redux-promise-middleware as `promiseMiddleware`
 * import the reducer from `budgetReducer.js`
-* Create a variable called `rootReducer`. It's value will be the result of calling `combineReducers`.
+* Create a variable called `rootReducer`. It's value will be the result of calling `combineReducers` and passing in an object with a key-value pair of `budget: budgetReducer`.
 
   ```
   const rootReducer = combineReducers({
