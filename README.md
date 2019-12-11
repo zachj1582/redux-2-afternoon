@@ -13,12 +13,12 @@ In this step, we'll get the project set up.
 ## Instructions
 
 * Fork and clone this repo.
-* Run `npm install`. If you look at the package.json file, you'll notice that `redux`, `react-redux`, and `redux-promise-middleware` are listed as dependecies and will get installed.
+* Run `npm install`. If you look at the package.json file, you'll notice that `redux`, `react-redux`, and `redux-promise-middleware` are listed as dependecies. These are installed when you run `npm install`.
 * Create a `.env` file in the root of the project with a `SERVER_PORT` of `4000` and a `SESSION_SECRET` of any value you want.
 * Run `nodemon`.
 * Run `npm start` in a separate terminal instance.
 
-In the browser, you should see a log in page for the project.
+In the browser, you should see a login page for the project.
 
 * Log in using the email **`peterquill@gmail.com`**. The password is **`starlord`**.
 
@@ -36,7 +36,7 @@ In this step, we'll set up a redux store and add in some middleware so that we c
 * Add a file in the ducks folder and name it `budgetReducer.js`
 
 In budgetReducer.js:
-* Create an `initialState` variable. Initial state for the store:
+* Create an `initialState` variable with the following properties. This variable will eventually be passed into the reducer function to set an initial state for the store:
 
   ```
   {
@@ -45,16 +45,16 @@ In budgetReducer.js:
     loading: false
   }
   ```
-* Create a function that have `state` and `action` parameters. Return state.
+* Create a function called reducer that takes in two parameters, `state` and `action`. Your function should return `state`.
 * `initialState` should be the default value for the state parameter.
 * `export default` the reducer function.
 
 Now we'll create the store.
 
-* In `src`, create a file named `store.js`
+* In the `ducks` folder, create a file named `store.js`
 * import `createStore`, `combineReducers` and `applyMiddleware` from redux
 * import redux-promise-middleware as `promiseMiddleware`
-* import the reducer from `budgetReducer.js`
+* import the reducer from `budgetReducer.js` as `budgetReducer`
 * Create a variable called `rootReducer`. It's value will be the result of calling `combineReducers` and passing in an object with a key-value pair of `budget: budgetReducer`.
 
   ```
@@ -62,7 +62,7 @@ Now we'll create the store.
     budget: budgetReducer
   })
   ```
-* export the created store using `createStore`. This first arg to createStore should be `rootReducer`. The second arg is `applyMiddleware(promiseMiddlware)`
+* export as default the created store using `createStore`. The first argument to the createStore function should be `rootReducer`. The second argument should be `applyMiddleware(promiseMiddlware)`
 
 
 Now we can go connect the redux part of our app to the react part.
@@ -70,10 +70,10 @@ Now we can go connect the redux part of our app to the react part.
 In index.js
 * Import `Provider` from 'react-redux'.
 * Import the `store` from './store.js'
-* Wrap the app component in the `Provider` component.
+* Wrap the App component with the `Provider` component.
 * Give the `Provider` component a `store` prop. The value of the store prop should be the imported store.
 
-You should not see any errors in your app at this point.
+Now, open your console. You should not see any errors in your app at this point. Warnings may be fine, but double-check your app to be sure. 
 
 ### Solution
 
@@ -81,12 +81,15 @@ You should not see any errors in your app at this point.
 <summary> <code> budgetReducer.js </code> </summary>
 
 ```
+// CREATE AN INITIAL STATE OBJECT THAT WILL BE PASSED THROUGH THE REDUCER TO SET AN INITIAL STATE FOR THE STORE
 const initialState = {
   purchases: [],
   budgetLimit: null,
   loading: false
 }
 
+	
+// EXPORT DEFAULT A REDUCER FUNCTION THAT RETURNS A STATE OBJECT
 export default function reducer(state = initialState, action) {
   return state;
 }
@@ -97,14 +100,19 @@ export default function reducer(state = initialState, action) {
 <summary> <code> store.js </code> </summary>
 
 ```
+// IMPORT THE REDUX FUNCTIONS, MIDDLEWARE, AND REDUCERS THAT WILL BE USED TO CREATE A STORE
 import { createStore, applyMiddleware, combineReducers } from 'redux';
 import promiseMiddleware from 'redux-promise-middleware';
-import budgetReducer from './ducks/budgetReducer';
+import budgetReducer from './budgetReducer';
 
+
+// USE COMBINE REDUCERS TO COMBINE REDUCERS INTO A SINGLE, "ROOT" REDUCER THAT WILL BE USED BY THE STORE. EVENTUALLY YOU MAY HAVE MULTIPLE REDUCERS IN AN APPLICATION, AND THIS STEP HELPS US COMBINE THOSE INTO ONE ROOT REDUCER THAT CAN BE USED TO CREATE A STORE
 const rootReducer = combineReducers({
   budget: budgetReducer
 })
 
+// CREATE THE STORE USING THE CREATE STORE FUNCTION. PASS IN THE APPROPRIATE ARGUMENTS.
+// YOU ARE EXPORTING IT SO THAT IT CAN BE USED BY THE PROVIDER COMPONENT LATER ON
 export default createStore(rootReducer, applyMiddleware(promiseMiddleware));
 ```
 </details>
@@ -113,6 +121,7 @@ export default createStore(rootReducer, applyMiddleware(promiseMiddleware));
 <summary> <code>index.js </code> </summary>
 
 ```
+// IMPORT THE PROVIDER COMPONENT FROM REACT-REDUX AND THE STORE
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
@@ -120,6 +129,7 @@ import * as serviceWorker from './serviceWorker';
 import { Provider } from 'react-redux';
 import store from './store';
 
+// WRAPPING THE APP COMPONENT IN THE PROVIDER COMPONENT GIVES THE ENTIRE APPLICATION ACCESS TO WHATEVER IS IN THE STORE, BECAUSE WE PASS IN THE STORE AS A PROP TO THE PROVIDER, AND WRAP OUR PROVIDER AROUND OUR APP
 ReactDOM.render(
   <Provider store={store}>
     <App />
@@ -143,13 +153,17 @@ In this step, we'll make the loading animation dependent on the redux store's `l
 ### Instructions
 
 In Budget.js:
-* Import connect from react-redux;
-* Connect the Budget component.
+* Import connect from 'react-redux';
+* Underneath your class component, but above your export default statement, create a `mapStateToProps` function that takes in a parameter called `state` from the redux store. The function should return an object with a key of `budget` that has a value of `state.budget`.  
+* Connect the Budget component to the redux store using the `connect` function from 'react-redux'.
 * In the mapStateToProps function, return an object with a budget property and value of the budget slice of state from the redux store.
 
-All redux store state values managed by the `budgetReducer` are now on `this.props`, including the `loading` property in the redux store.
+All redux store state values managed by the `budgetReducer` are now on `this.props.budget` of the props object of your Budget component, including the `loading` property in the redux store. This is becaused we have mapped the redux store state to the props object of your component through the mapStateToProps function we just created after connecting our component to the redux store with the `connect` method.
 
-* Towards the top of the jsx, locate the ternary that is conditionally rendering the loading animation. Update this code to use the `loading` property from `this.props`.
+Next, in order to enable the loading animation:
+
+* Destructure `loading` from the props object inside render
+* Locate the ternary in the JSX that is conditionally rendering the loading animation. Update this code to use the `loading` property to check whether or not the Loading component should be displayed.
 
 <details>
 <summary> <code>Budget.js </code> </summary>
@@ -170,9 +184,13 @@ import { connect } from 'react-redux'
 class Budget extends Component {
 
   render() {
+  // DESTRUCTURE THE LOADING PROPERTY FROM THE BUDGET OBJECT THAT WAS MAPPED TO PROPS THROUGH MAPSTATETOPROPS/CONNECT
     const { loading } = this.props.budget;
     return (
       <Background>
+        // UPDATE THE TERNARY TO CHECK WHETHER OR NOT THE LOADING PROPERTY 
+        // ON THE BUDGET OBJECT IS TRUE. IF SO, THEN THE LOADING COMPONENT
+        // SHOULD BE DISPLAYED
         {loading ? <Loading /> : null}
         <div className='budget-container'>
           <Nav />
@@ -192,12 +210,16 @@ class Budget extends Component {
   }
 }
 
+// THIS FUNCTION TAKES IN THE REDUX STORE STATE AND MAPS THE BUDGET REDUCER INFO 
+// FROM THE REDUX STORE TO A BUDGET KEY ON THIS COMPONENT'S PROPS OBJECT
 function mapStateToProps(state) {
   return {
     budget: state.budget
   }
 }
 
+	
+// THE CONNECT METHOD TAKES IN THE MAPSTATETOPROPS FUNCTION AND CONNECTS THIS COMPONENT TO THE REDUX STORE
 export default connect(mapStateToProps)(Budget);
 
 ```
@@ -214,14 +236,14 @@ In this step, we'll create a second reducer to manage the logged in user's data.
 * Create a new file named `userReducer.js` in the `ducks` folder
 
 In userReducer.js:
-* initialState: `{ email: null, firstName: null, lastName: null }`
-* `export default` the reducer function. This function will take in `state` and `action` a paramenters. `initialState` will be the default value for state parameter.
-* Return `state` in reducer function.
+* Create an initialState object with the following key/value pairs: `email: null`, `firstName: null`, and `lastName: null`
+* Create and `export default` a reducer function that takes in `state` and `action` as parameters. `initialState` should be the default value for `state` parameter passed in.
+* The reducer function should return `state`.
 
 In store.js:
 
-* Import the user reducer function.
-* Add it to the combine reducer object with a property of `user`
+* Import the user reducer function from `userReducer.js`.
+* Add it to the rootReducer object using a property called `user`
 
 ### Solution
 
@@ -229,12 +251,15 @@ In store.js:
 <summary> <code>userReducer.js </code> </summary>
 
 ```
+// CREATE AN INITIAL STATE OBJECT THAT WILL EVENTUALLY BE USED TO SET AN INITIAL STATE PROPERTY ON THE REDUX STORE AFTER BEING PASSED THROUGH THE REDUCER
 const initialState = {
   email: null,
   firstName: null,
   lastName: null
 };
 
+
+// EXPORT DEFAULT A REDUCER FUNCTION THAT RETURNS A STATE OBJECT TO THE STORE
 export default function reducer(state = initialState, action) {
   return state;
 }
@@ -246,9 +271,12 @@ export default function reducer(state = initialState, action) {
 ```
 import { createStore, applyMiddleware, combineReducers } from 'redux';
 import promiseMiddleware from 'redux-promise-middleware';
-import budgetReducer from './ducks/budgetReducer';
-import userReducer from './ducks/userReducer';
+import budgetReducer from './budgetReducer';
+// IMPORT THE USER REDUCER
+import userReducer from './userReducer';
 
+	
+// ADD THE USER REDUCER TO THE ROOT REDUCER OBJECT THAT WILL BE USED TO CREATE THE REDUX STORE STATE
 const rootReducer = combineReducers({
   budget: budgetReducer,
   user: userReducer
@@ -262,18 +290,18 @@ export default createStore(rootReducer, applyMiddleware(promiseMiddleware));
 
 ### Summary
 
-In this step, we'll go get the logged in user's data from the server, store that info in the redux store, and display the user's first and last name in the nav bar.
+In this step, we'll get a logged in user's data from the server, store that info in the redux store, and display the user's first and last name in the nav bar.
 
 ### Instructions
 
 In userReducer.js:
 * Import axios from 'axios'
-* Create an action type named REQUEST_USER_DATA
-* Create an action creator function (named `requestUserData`) that makes an http request for user data;
+* Create an action type named `REQUEST_USER_DATA`
+* Create an action creator function (named `requestUserData`) that first makes an axios request for user data, and assigns that data to a new variable named `data`;
   * Method: GET
   * URL: '/auth/user-data'
-* The action that is returned from the action creator should have `type` and `payload` properties. The payload should be the response from the http request
-  * Make sure you return `res.data` from the callback passed to `.then()`
+* The action creator should return an "action" object that has `type` and `payload` properties. The payload should be the `data` variable you you assigned above. 
+  * Make sure you're returning `res.data` from the callback passed to the `.then()` of your axios request as shown below.
     ```
     export const requestUserData = () => {
     let data = axios.get('/auth/user-data').then(res => res.data)
@@ -284,10 +312,11 @@ In userReducer.js:
     }
     ```
 
-* Update the reducer function the have a `switch` statement testing for the value of `action.type`.
-* When the request is fulfilled, return a new state object with email, firstName, and lastName properties. 
+* Update the reducer function to have a `switch` statement that returns objects based on the value of the `action.type` passed in.
+* When the `REQUEST_USER_DATA` action type is fulfilled, return a new object with email, firstName, and lastName properties from the user object in the action payload (i.e. `action.payload.user`). In the solution below, the values for `email`, `firstName`, and `lastName` have been destructured from the payload before being returned in the new state object.
+* In the `default` case, just return `state`. 
 
-__NOTE__: You should get used to using the network tab in your chrome dev tools to check what the response looks like from an http request. But if you need help, you can also check below for what the reponse looks like.
+__NOTE__: You should try using the "Network" tab in the chrome developer tools to check what responses look like from http requests. You can also look below to see what the response looks like, but familiarizing yourself now with the chrome developer tools will help you in the future.
 
 <details>
 <summary>Response object from HTTP request</summary>
@@ -309,6 +338,7 @@ Response Object:
 ```
 </details>
 
+
 In Budget.js:
 * In `mapStateToProps`, make sure you are getting the user data from the redux store onto the props object
   
@@ -321,10 +351,9 @@ In Budget.js:
   }
   ```
 * Import the action creator (`requestUserData`) from userReducer.js.
-* The second arg to the connect method is an object that you can put any needed action creators in. Remember, you will want to invoke the version of `requestUserData` that is now on `this.props`.
-* Invoke `requestUserData` in the `componentDidMount` method
+* The second argument to the `connect` method should be an object that takes in all of the action creators from your reducers and provides access to these actions in `this.props`. You will want to invoke the version of the `requestUserData` function that is now on `this.props`, not the one directly from the userReducer.js file.
 
-After the `this.props.requestUserData` runs in the `componentDidMount` method, the http request should be sent for the user data. When the user data comes back, the redux store gets updated, which will trigger a re-rending of the `Budget` component. The difference? We will now have values for `email`, `firstName`, and `lastName` on the props object.
+After the `this.props.requestUserData` function runs in the `componentDidMount` method, the http request will be sent for the user data. When the user data comes back, the redux store gets updated, which triggers a re-rending of the `Budget` component, and sets the value of the `this.props.budget` object to have the updated values returned from the budgetReducer function to the redux store. 
 
 * The Nav component is expecting a firstName and lastName prop. Pass the appropriate data as props. You should now see the logged in user's name next to the picture in the corner.
 
