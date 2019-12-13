@@ -290,17 +290,18 @@ export default createStore(rootReducer, applyMiddleware(promiseMiddleware));
 
 ### Summary
 
-In this step, we'll get a logged in user's data from the server, store that info in the redux store, and display the user's first and last name in the nav bar.
+In this step, we'll get the logged in user's data from the server, store that info in the redux store, and display the user's first and last name in the nav bar.
+
 
 ### Instructions
 
 In userReducer.js:
 * Import axios from 'axios'
 * Create an action type named `REQUEST_USER_DATA`
-* Create an action creator function (named `requestUserData`) that first makes an axios request for user data, and assigns that data to a new variable named `data`;
+* Create an action creator function (named `requestUserData`) that first makes an axios get request for user data, and stores that data to a new variable named `data`;
   * Method: GET
   * URL: '/auth/user-data'
-* The action creator should return an "action" object that has `type` and `payload` properties. The payload should be the `data` variable you you assigned above. 
+* The action creator should return an "action" object that has `type` and `payload` properties. The payload should be the `data` variable you you assigned above that is storing the response data from the axios request. 
   * Make sure you're returning `res.data` from the callback passed to the `.then()` of your axios request as shown below.
     ```
     export const requestUserData = () => {
@@ -312,8 +313,8 @@ In userReducer.js:
     }
     ```
 
-* Update the reducer function to have a `switch` statement that returns objects based on the value of the `action.type` passed in.
-* When the `REQUEST_USER_DATA` action type is fulfilled, return a new object with email, firstName, and lastName properties from the user object in the action payload (i.e. `action.payload.user`). In the solution below, the values for `email`, `firstName`, and `lastName` have been destructured from the payload before being returned in the new state object.
+* Update the reducer function to have a `switch` statement that returns an object based on the value of the `action.type` passed in.
+* When the `REQUEST_USER_DATA` action type is fulfilled, return a new object with email, firstName, and lastName properties from the user object in the action payload (i.e. `action.payload.user`). In the solution below, the values for `email`, `firstName`, and `lastName` have been destructured from the payload before being returned by the reducer function as a new state object.
 * In the `default` case, just return `state`. 
 
 __NOTE__: You should try using the "Network" tab in the chrome developer tools to check what responses look like from http requests. You can also look below to see what the response looks like, but familiarizing yourself now with the chrome developer tools will help you in the future.
@@ -340,6 +341,7 @@ Response Object:
 
 
 In Budget.js:
+
 * In `mapStateToProps`, make sure you are getting the user data from the redux store onto the props object
   
   ```
@@ -351,11 +353,13 @@ In Budget.js:
   }
   ```
 * Import the action creator (`requestUserData`) from userReducer.js.
-* The second argument to the `connect` method should be an object that takes in all of the action creators from your reducers and provides access to these actions in `this.props`. You will want to invoke the version of the `requestUserData` function that is now on `this.props`, not the one directly from the userReducer.js file.
+* The second argument to the `connect` method at the bottom of your file should be an object that takes in all of the action creators from your reducers and provides access to these actions in `this.props`. In your component itself, you will want to invoke the version of the `requestUserData` function that is now on `this.props`, not the one directly from the userReducer.js file.
 
-After the `this.props.requestUserData` function runs in the `componentDidMount` method, the http request will be sent for the user data. When the user data comes back, the redux store gets updated, which triggers a re-rending of the `Budget` component, and sets the value of the `this.props.budget` object to have the updated values returned from the budgetReducer function to the redux store. 
+After the `this.props.requestUserData` function runs in the `componentDidMount` method, the http request will be sent for the user data. When the user data comes back, the redux store gets updated, which triggers a re-rendering of the `Budget` component, and sets the value of the `this.props.budget` object to have the updated values that are now on the redux store. 
 
-* The Nav component is expecting a firstName and lastName prop. Pass the appropriate data as props. You should now see the logged in user's name next to the picture in the corner.
+* The Nav component is expecting a firstName and lastName prop. Pass the appropriate data as props from the information stored on the redux store. 
+
+After completing this step, you should see the logged in user's name next to the picture in the corner.
 
 ### Solution
 
@@ -371,8 +375,13 @@ const initialState = {
   lastName: null
 };
 
+//CREATE THE BASE ACTION TYPES YOU WILL USE
 const REQUEST_USER_DATA = 'REQUEST_USER_DATA'
 
+
+// THE ACTION CREATOR HERE DEFINES AN ACTION TYPE AND PAYLOAD THAT WILL BE USED BY THE REDUCER FUNCTION
+// TO UPDATE VALUES IN THE REDUX STORE. THIS FUNCTION ITSELF WILL BE INVOKED IN A 
+// COMPONENT VIA PROPS ONCE THAT COMPONENT HAS CONNECTED TO IT VIA THE CONNECT METHOD
 export const requestUserData = () => {
   let data = axios.get('/auth/user-data').then(res => res.data)
   return {
@@ -381,7 +390,11 @@ export const requestUserData = () => {
   }
 }
 
-export default function (state = initialState, action) {
+export default function reducer(state = initialState, action) {
+// USING A SWITCH STATEMENT INSIDE OF THIS FUNCTION ENABLES THE REDUX STORE TO UPDATE ITS STATE DYNAMICALLY BASED ON THE ACTION TYPE PASSED IN. THIS FUNCTION RUNS WHEN THE ACTION CREATORS ARE INVOKED IN A COMPONENT.
+
+// NOTE: YOU USE THE PROMISE BASED SYNTAX '_FULFILLED' BECAUSE 'FULFILLED'/'PENDING'/'REJECTED' IS ADDED BY REDUX-PROMISE  MIDDLEWARE WHEN MAKING PROMISE BASED REQUESTS (REQUESTS THAT RECEIVE RESPONSES) THROUGH REDUX. ACTIONS THAT AREN'T RELATED TO PPROMISE BASED REQUESTS SHOULD NOT HAVE 'FULFILLED'/'PENDING'/'REJECTED' CONCATENATED TO THEM. IF YOU DIDN'T USE REDUX-PROMISE-MIDDLEWARE, YOU SHOULD ALSO NOT CONCATENATE THOSE STRINGS.
+
   switch (action.type) {
     case REQUEST_USER_DATA + '_FULFILLED':
       const { email, firstName, lastName } = action.payload.user
@@ -408,11 +421,14 @@ import Loading from './../shared/Loading/Loading';
 import Nav from './../shared/Nav';
 import './Budget.css';
 import { connect } from 'react-redux'
+// IMPORT THE ACTION CREATOR FROM THE REDUCER FILE FOR USE BY THE CONNECT METHOD, WHICH THEN ADDS THE FUNCTION TO THE PROPS // OBJECT OF THIS COMPONENT
 import { requestUserData } from './../../ducks/userReducer'
 
 
 class Budget extends Component {
+
   componentDidMount() {
+  // WHEN THE COMPONENT MOUNTS, THE ACTION CREATOR IS INVOKED, THE REDUCER FUNCTION FIRES, AND STATE IS UPDATED ACCORDINGLY   // IN THE REDUX STORE
     this.props.requestUserData()
   }
 
@@ -447,6 +463,8 @@ function mapStateToProps(state) {
   }
 }
 
+// IN ORDER TO ACCESS THE REQUESTUSERDATA ACTION CREATOR, YOU NEED TO CONNECT IT TO
+// THE REDUCER FUNCTION THROUGH THE CONNECT METHOD. THE CONNECT METHOD ACCEPTS TWO ARGUMENTS, A MAPSTATETOPROPS OBJECT, AND A MAPDISPATCHTOPROPS OBJECT. OUR DISPATCHED ACTIONS GO INSIDE OF THE SECOND ARGUMENT OBJECT AS A KEY/VALUE PAIR. 
 export default connect(mapStateToProps, { requestUserData })(Budget);
 
 ```
@@ -462,14 +480,17 @@ In this step, we'll get the budgetData from the server to be displayed.
 
 In budgetReducer.js:
 
+* import axios from 'axios'
 * Create action type called `REQUEST_BUDGET_DATA`
-* Create an action creator named `requestBudgetData` that will make an http request for budget data.
+* Create an action creator named `requestBudgetData` that makes a get request for budget data, returns the data from the response, and stores that data to a variable named `data`.
   * Method: `GET`
   * URL: `/api/budget-data`
-  * Return action object from `requestBudgetData` with `type` and `payload` properties.
-* Update the switch statement
-  * When http request is pending, `loading` should be true
-  * When http request is fulfilled, update redux store state and change `loading` back to false.
+  * Make sure you return `res.data` from the callback passed into the `.then` of your get request
+  * Return an action object from `requestBudgetData` with `type` and `payload` properties. The value of `payload` should be the data variable from above.
+* Update the reducer function to have a `switch` statement that returns an object based on the value of `action.type`.
+  * While the http request is pending, `loading` should be true
+  * When the http request is fulfilled, update the redux store state using the `action.payload`, and change `loading` back to false.
+  * In the `default` case, just return `state`. 
 
 In Budget.js:
 
@@ -481,13 +502,14 @@ The budget data from the http request is now in the redux store, and because of 
 
 * `this.props.budget.purchases` needs to be passed to the `DisplayPurchases`, `Chart1`, and `Chart2` components. The name of the prop needs to be `purchases`.
 * `budgetLimit` from the props object needs to be passed to `Chart1` on a prop called `budgetLimit`.
+* The solution below destructures purchases and budgetLimit from `this.props.budget`
 
 You should now see some dummy data appearing as well as the charts reacting to that data.
 
 ### Solution
 
 <details>
-<summary> <code>budgetReducer.js </code> </summary>
+<summary><code>budgetReducer.js </code> </summary>
 
 ```
 import axios from 'axios';
@@ -498,8 +520,10 @@ const initialState = {
   loading: false
 };
 
+//CREATE THE BASE ACTION TYPES THAT WILL BE USED
 const REQUEST_BUDGET_DATA = 'REQUEST_BUDGET_DATA';
 
+// SET UP AN ACTION CREATOR THAT RETURNS AN ACTION OBJECT WITH A TYPE AND PAYLOAD PROPERTY
 export const requestBudgetData = () => {
   let data = axios.get('/api/budget-data').then(res => res.data)
   return {
@@ -511,6 +535,8 @@ export const requestBudgetData = () => {
 export default function budgetReducer(state = initialState, action) {
   switch (action.type) {
     case REQUEST_BUDGET_DATA + '_PENDING':
+    // IN ORDER TO KEEP VALUES PREVIOUSLY STORED ON STATE, WE SPREAD THE CURRENT STATE OBJECT
+    // INTO THE RETURNED OBJECT AND UPDATE ONLY THE VALUES IN STATE WE WANT TO CHANGE
       return { ...state, loading: true }
     case REQUEST_BUDGET_DATA + '_FULFILLED':
       return { ...state, ...action.payload, loading: false }
@@ -545,6 +571,7 @@ class Budget extends Component {
   }
 
   render() {
+  // DESTRUCTURING VALUES HERE IS OPTIONAL BUT RECOMMENDED FOR CLEANER JSX
     const { loading, purchases, budgetLimit } = this.props.budget;
     const { firstName, lastName } = this.props.user;
     return (
@@ -591,6 +618,7 @@ In this step, we'll create two more action creators so that we can add and remov
 
 In budgetReducer.js:
 
+* Create an action type called `ADD_PURCHASE`.
 * Create an action creator named `addPurchase` that will make an http request to add a new purchase.
 * Create action type for `addPurchase`.
   * Parameters of `addPurchase` (in order):
@@ -601,16 +629,18 @@ In budgetReducer.js:
   * URL: '/api/budget-data/purchase'
   * Body of request
     ```
-    { description: 'value', price: 'value', category: 'value' }
+    { description, price, category }
     ```
-* addPurchase should return action object.
+* addPurchase should return an action object with a `type` and `payload`.
+
 
 Update the switch statement: 
-* When request is pending, `loading` should be set to `true`
-* When requst is fulfilled, update state properly and change `loading` back to `false`.
+* While the request is pending, `loading` should be set to `true`
+* When the request is fulfilled, update state and the purchases property using the `action.payload`, and change `loading` back to `false`.
 
 Now for the last action creator.
 
+* Create an action type called `REMOVE_PURCHASE`.
 * Create an action creator named `removePurchase` that will make an http request to remove a purchase.
 * Create action type for `removePurchase`.
   * `removePurchase` will have an `id` parameter
@@ -717,6 +747,7 @@ import Nav from './../shared/Nav';
 import './Budget.css';
 import { connect } from 'react-redux'
 import { requestUserData } from './../../ducks/userReducer'
+//IMPORT THE addPurchase AND removePurchase ACTION CREATORS
 import { requestBudgetData, addPurchase, removePurchase } from './../../ducks/budgetReducer'
 
 
@@ -736,6 +767,7 @@ class Budget extends Component {
           <Nav firstName={firstName} lastName={lastName} />
           <div className='content-container'>
             <div className="purchases-container">
+	    // USE PROPS TO PASS DOWN addPurchase AND removePurchase FUNCTIONS
               <AddPurchase addPurchase={this.props.addPurchase} />
               <DisplayPurchases purchases={purchases} removePurchase={this.props.removePurchase} />
             </div>
@@ -757,6 +789,8 @@ function mapStateToProps(state) {
   }
 }
 
+	
+// ADD addPurchase AND removePurchase TO THE 2ND OBJ ARG IN THE CONNECT METHOD
 export default connect(mapStateToProps, { requestUserData, requestBudgetData, addPurchase, removePurchase })(Budget);
 
 ```
@@ -798,7 +832,7 @@ If you see a problem or a typo, please fork, make the necessary changes, and cre
 
 ## Copyright
 
-© DevMountain LLC, 2017. Unauthorized use and/or duplication of this material without express and written permission from DevMountain, LLC is strictly prohibited. Excerpts and links may be used, provided that full and clear credit is given to DevMountain with appropriate and specific direction to the original content.
+© DevMountain LLC, 2019. Unauthorized use and/or duplication of this material without express and written permission from DevMountain, LLC is strictly prohibited. Excerpts and links may be used, provided that full and clear credit is given to DevMountain with appropriate and specific direction to the original content.
 
 <p align="center">
 <img src="https://s3.amazonaws.com/devmountain/readme-logo.png" width="250">
